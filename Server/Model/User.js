@@ -10,13 +10,29 @@ const UserSchema = new mongoose.Schema({
     email: {
         type: String,
         required: true,
+        lowercase: true,
     },
 
     password: {
         type: String,
         required: true,
+    }, 
+
+     resetPasswordToken: {
+        type: String,
+    },
+
+    resetPasswordExpiry: {
+        type: Date,
     }
-})
+
+}, { timestamps: true ,
+     versionKey: false
+
+}); 
+
+   
+
 
 const User = mongoose.model("User",UserSchema)
 

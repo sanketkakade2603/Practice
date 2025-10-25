@@ -80,27 +80,27 @@ export const ForgetPassword = async (req, res) => {
       return res.status(400).json({ msg: "Please provide email" });
     }
 
-    // Check if user exists
+    
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ msg: "User not found. Please register." });
     }
 
-    // Generate a secure random token
+   
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // Hash the token before saving (for security)
+    
     const hashedToken = crypto.createHash("sha256").update(resetToken).digest("hex");
 
-    // Set token & expiry in user record
+    
     user.resetPasswordToken = hashedToken;
-    user.resetPasswordExpiry = Date.now() + 10 * 60 * 1000; // valid for 15 mins
+    user.resetPasswordExpiry = Date.now() + 10 * 60 * 1000; 
     await user.save();
 
-    // Reset URL (frontend URL)
+    
     const resetURL = `${process.env.FRONTEND_URL}/reset-password/${resetToken}`;
 
-    // Nodemailer config
+    
     const transporter = nodemailer.createTransport({
       host: "smtp.gmail.com",
       port: 465,
@@ -111,7 +111,7 @@ export const ForgetPassword = async (req, res) => {
       },
     });
 
-    // Send mail
+    
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
@@ -141,10 +141,10 @@ export const ResetPassword = async (req, res) => {
       return res.status(400).json({ msg: "Please provide a new password." });
     }
 
-    // Hash the token to match the stored one
+    
     const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
-    // Find user with valid token & not expired
+    
     const user = await User.findOne({
       resetPasswordToken: hashedToken,
       resetPasswordExpiry: { $gt: Date.now() },
@@ -154,11 +154,11 @@ export const ResetPassword = async (req, res) => {
       return res.status(400).json({ msg: "Invalid or expired reset token." });
     }
 
-    // Hash new password
+   
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
 
-    // Clear reset fields
+   
     user.resetPasswordToken = undefined;
     user.resetPasswordExpiry = undefined;
 
